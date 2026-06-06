@@ -1,0 +1,44 @@
+ body {
+     background-color: #f8fafc !important;
+     /* Çox yüngül boz/mavi fon */
+     color: #334155;
+     font-family: 'Inter', sans-serif;
+ }
+
+ /* Minimalist Scrollbar */
+ ::-webkit-scrollbar {
+     width: 6px;
+     height: 6px;
+ }
+
+ ::-webkit-scrollbar-track {
+     background: transparent;
+ }
+
+ ::-webkit-scrollbar-thumb {
+     background: #e2e8f0;
+     border-radius: 10px;
+ }
+
+ ::-webkit-scrollbar-thumb:hover {
+     background: #cbd5e1;
+ }
+
+ /* Main Content Sahəsi */
+ .main-content {
+     background-color: transparent;
+     padding-top: 20px;
+ }
+
+ /* Header və Menu üçün xüsusi toxunuş (əgər daxildə ağ fon lazımdırsa) */
+ .navbar-vertical {
+     background: #ffffff !important;
+     border-right: 1px solid #f1f5f9 !important;
+ }
+
+ /* Kartların ümumi estetikası */
+ .card {
+     border: 1px solid #f1f5f9 !important;
+     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+     border-radius: 16px !important;
+ }
