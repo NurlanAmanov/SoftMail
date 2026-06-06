@@ -33,29 +33,23 @@ class PageController extends Controller
             }
 
             try {
-                $response = Http::withHeaders([
+                $response = Http::withoutVerifying()->withHeaders([
                     'api-key' => $apiKey,
                     'accept' => 'application/json',
-                ])->timeout(3)->get('https://api.brevo.com/v3/account');
+                ])->timeout(10)->get('https://api.brevo.com/v3/account');
 
                 if ($response->successful()) {
                     $resData = $response->json();
 
-                    // Kredit və ya email planını tapırıq
-                    $creditsPlan = collect($resData['plan'])->firstWhere('type', 'credits')
-                        ?? collect($resData['plan'])->firstWhere('type', 'emails');
+                    $plans = collect($resData['plan'] ?? []);
+                    $emailPlan = $plans->firstWhere('creditsType', 'sendLimit');
 
-                    $maxLimit = $creditsPlan['credits'] ?? 300; // Default pulsuz plan limiti
-                    $usedLimit = $creditsPlan['creditsUsed'] ?? 0;
-                    $remaining = $maxLimit - $usedLimit;
-                    $percentage = $maxLimit > 0 ? ($usedLimit / $maxLimit) * 100 : 0;
+                    $maxLimit = $emailPlan['credits'] ?? 300;
+                    $planType = ucfirst($emailPlan['type'] ?? 'Free');
 
                     return [
-                        'max_limit'   => $maxLimit,
-                        'used_limit'  => $usedLimit,
-                        'remaining'   => $remaining,
-                        'percentage'  => round($percentage, 1),
-                        'plan_type'   => $creditsPlan['planType'] ?? 'Free'
+                        'max_limit'  => $maxLimit,
+                        'plan_type'  => $planType,
                     ];
                 }
             } catch (\Exception $e) {

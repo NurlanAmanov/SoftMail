@@ -28,11 +28,16 @@
                         <p class="text-secondary text-xs uppercase tracking-wider font-semibold mb-1">Mail Limitiniz</p>
                         
                         @if($brevoData)
+                            @php
+                                $usedPct = $brevoData['max_limit'] > 0
+                                    ? min(round($sentEmails / $brevoData['max_limit'] * 100, 1), 100)
+                                    : 0;
+                            @endphp
                             <h3 class="mb-0 fw-bold text-slate-900">
-                                {{ number_format($brevoData['used_limit']) }}
+                                {{ number_format($sentEmails) }}
                                 <span class="text-sm font-normal text-muted">/ {{ number_format($brevoData['max_limit']) }}</span>
                             </h3>
-                            <p class="text-muted small mt-1 mb-3">Qalan kreditiniz: <strong class="text-slate-900">{{ number_format($brevoData['remaining']) }}</strong></p>
+                            <p class="text-muted small mt-1 mb-3">Qalan limit: <strong class="text-slate-900">{{ number_format($brevoData['max_limit'] - $sentEmails) }}</strong></p>
                         @else
                             <h3 class="mb-0 fw-bold text-muted text-sm">Bağlantı qurulamadı</h3>
                             <p class="text-muted small mt-1 mb-3">API açarını yoxlayın.</p>
@@ -42,12 +47,12 @@
                     @if($brevoData)
                         <div class="mt-2">
                             <div class="progress" style="height: 6px; border-radius: 10px; background-color: #f1f5f9;">
-                                <div class="progress-bar bg-slate-900" role="progressbar" 
-                                     style="width: {{ $brevoData['percentage'] }}%; border-radius: 10px;" 
-                                     aria-valuenow="{{ $brevoData['percentage'] }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                <div class="progress-bar bg-slate-900" role="progressbar"
+                                     style="width: {{ $usedPct }}%; border-radius: 10px;"
+                                     aria-valuenow="{{ $usedPct }}" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                             <div class="d-flex justify-content-between mt-2 text-muted" style="font-size: 11px;">
-                                <span>İstifadə: {{ $brevoData['percentage'] }}%</span>
+                                <span>İstifadə: {{ $usedPct }}%</span>
                                 <span>Canlı Data</span>
                             </div>
                         </div>

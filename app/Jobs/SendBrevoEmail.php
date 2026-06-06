@@ -9,6 +9,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use GuzzleHttp\Client;
 use App\Models\EmailRecipient;
+use App\Models\Setting;
 
 class SendBrevoEmail implements ShouldQueue
 {
@@ -54,10 +55,12 @@ class SendBrevoEmail implements ShouldQueue
         }
 
         try {
+            $apiKey = Setting::where('key', 'brevo_api_key')->value('value') ?: env('BREVO_API_KEY');
+
             $res = $client->post('smtp/email', [
                 'headers' => [
                     'accept'       => 'application/json',
-                    'api-key'      => env('BREVO_API_KEY'),
+                    'api-key'      => $apiKey,
                     'content-type' => 'application/json',
                 ],
                 'json' => $this->details['payload'],
