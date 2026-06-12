@@ -239,6 +239,35 @@ body, .tpl-builder { font-family: 'DM Sans', sans-serif; background: #f5f6fa; }
 }
 .prop-row .color-row input[type=text] { flex: 1; }
 
+/* ── Variable chips ── */
+.var-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.var-chip {
+    font-size: 10.5px; font-family: inherit; font-weight: 500; color: #6366f1;
+    background: #eef2ff; border: 1px solid #e0e7ff; border-radius: 5px;
+    padding: 3px 8px; cursor: pointer; transition: all .12s;
+}
+.var-chip:hover { background: #e0e7ff; border-color: #c7d2fe; }
+
+/* ── Preset chips ── */
+.preset-chip { cursor: pointer; }
+
+/* ── Block controls extra ── */
+.block-ctrl-btn.dup:hover { background: #eef2ff; border-color: #c7d2fe; color: #6366f1; }
+
+/* ── Undo / Redo ── */
+.tb-undo-redo { display: flex; gap: 2px; }
+.tb-undo-redo .btn-ghost-sm:disabled { opacity: .35; cursor: default; pointer-events: none; }
+
+/* ── Settings Modal ── */
+#settings-modal {
+    display: none; position: fixed; inset: 0; z-index: 10000;
+    background: rgba(15,23,42,.55);
+    align-items: center; justify-content: center;
+}
+#settings-modal .prev-box { width: 380px; }
+#settings-modal .settings-body { padding: 16px 18px; }
+#settings-modal .settings-body .prop-row:last-child { margin-bottom: 0; }
+
 /* ── Toast ── */
 #tb-toast {
     position: fixed; bottom: 22px; left: 50%;
@@ -312,6 +341,19 @@ body, .tpl-builder { font-family: 'DM Sans', sans-serif; background: #f5f6fa; }
                    value="{{ $template->name ?? '' }}">
         </div>
         <div class="tb-right">
+            <div class="tb-undo-redo">
+                <button class="btn-ghost-sm" id="undo-btn" style="width:30px;justify-content:center;" title="Geri al (Ctrl+Z)" onclick="undo()" disabled>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 010 10h-1"/></svg>
+                </button>
+                <button class="btn-ghost-sm" id="redo-btn" style="width:30px;justify-content:center;" title="Təkrar et (Ctrl+Y)" onclick="redo()" disabled>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 000 10h1"/></svg>
+                </button>
+            </div>
+            <div class="tb-sep"></div>
+            <button class="btn-ghost" onclick="openSettings()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                Ayarlar
+            </button>
             <button class="btn-ghost" onclick="previewEmail()">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 Önizlə
@@ -354,11 +396,34 @@ body, .tpl-builder { font-family: 'DM Sans', sans-serif; background: #f5f6fa; }
                 <div class="block-chip" draggable="true" data-block="image">
                     <span class="bc-icon">🖼️</span> Şəkil
                 </div>
+                <div class="block-chip" draggable="true" data-block="image-text">
+                    <span class="bc-icon">🖼️📝</span> Şəkil + Mətn
+                </div>
+                <div class="block-chip" draggable="true" data-block="list">
+                    <span class="bc-icon">📋</span> Siyahı
+                </div>
+                <div class="block-chip" draggable="true" data-block="quote">
+                    <span class="bc-icon">❝</span> Sitat
+                </div>
+                <div class="block-chip" draggable="true" data-block="social">
+                    <span class="bc-icon">🔗</span> Sosial Media
+                </div>
                 <div class="block-chip" draggable="true" data-block="divider">
                     <span class="bc-icon">—</span> Bölücü
                 </div>
                 <div class="block-chip" draggable="true" data-block="spacer">
                     <span class="bc-icon">⬜</span> Boşluq
+                </div>
+
+                <div class="tb-block-group-title">Hazır Bölmələr</div>
+                <div class="block-chip preset-chip" onclick="addPreset('welcome')">
+                    <span class="bc-icon">👋</span> Xoş Gəliş Bölməsi
+                </div>
+                <div class="block-chip preset-chip" onclick="addPreset('promo')">
+                    <span class="bc-icon">🎉</span> Promo Bölmə
+                </div>
+                <div class="block-chip preset-chip" onclick="addPreset('cta')">
+                    <span class="bc-icon">📣</span> CTA Bölmə
                 </div>
             </div>
         </aside>
@@ -419,6 +484,40 @@ body, .tpl-builder { font-family: 'DM Sans', sans-serif; background: #f5f6fa; }
         </div>
     </div>
 
+    {{-- Settings Modal --}}
+    <div id="settings-modal" onclick="if(event.target===this)closeSettings()">
+        <div class="prev-box">
+            <div class="prev-head">
+                <span>Şablon Ayarları</span>
+                <button class="btn-ghost-sm" onclick="closeSettings()" style="width:30px;justify-content:center;font-size:16px;">×</button>
+            </div>
+            <div class="settings-body">
+                <div class="prop-row">
+                    <label>Səhifə fonu rəngi</label>
+                    <div class="color-row">
+                        <input type="color" id="set-bgColor" value="#f1f5f9" oninput="document.getElementById('set-bgColorTxt').value=this.value">
+                        <input type="text" id="set-bgColorTxt" class="prop-input" value="#f1f5f9" oninput="document.getElementById('set-bgColor').value=this.value">
+                    </div>
+                </div>
+                <div class="prop-row">
+                    <label>Məzmun genişliyi (px)</label>
+                    <input type="text" id="set-contentWidth" class="prop-input" value="600">
+                </div>
+                <div class="prop-row">
+                    <label>Əsas şrift</label>
+                    <select id="set-fontFamily" class="prop-input">
+                        <option value="Arial, Helvetica, sans-serif">Arial</option>
+                        <option value="'DM Sans', Arial, sans-serif">DM Sans</option>
+                        <option value="Georgia, 'Times New Roman', serif">Georgia</option>
+                        <option value="Verdana, Geneva, sans-serif">Verdana</option>
+                        <option value="'Courier New', Courier, monospace">Courier New</option>
+                    </select>
+                </div>
+                <button class="btn-save" style="width:100%;justify-content:center;margin-top:6px;" onclick="saveSettings()">Tətbiq et</button>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 {{-- Existing template data (edit mode) --}}
@@ -443,25 +542,58 @@ var existingEl  = document.getElementById('existing-tpl');
 var existingTpl = existingEl ? JSON.parse(existingEl.textContent) : null;
 var isEdit      = !!existingTpl;
 
+// Global template settings (page bg, content width, font)
+var globalSettings = { bgColor: '#f1f5f9', contentWidth: '600', fontFamily: 'Arial, Helvetica, sans-serif' };
+
+// Quick-insert merge tags for personalisation
+var VAR_TOKENS = [
+    {token: '[[NAME]]',    label: 'Ad'},
+    {token: '[[EMAIL]]',   label: 'E-poçt'},
+    {token: '[[COMPANY]]', label: 'Şirkət'},
+    {token: '[[COUPON]]',  label: 'Kupon'},
+    {token: '[[PHONE]]',   label: 'Telefon'}
+];
+
+// Undo / redo history
+var history      = [];
+var historyIndex = -1;
+var MAX_HISTORY  = 50;
+
 // ────────────────────────────────────────────────
 //  BLOCK DEFINITIONS
 // ────────────────────────────────────────────────
 var BLOCK_DEFAULTS = {
     header: {
         label: 'Başlıq',
-        props: { bg: '#6366f1', title: '[[TITLE]]', titleColor: '#ffffff', subtitleColor: 'rgba(255,255,255,0.8)', align: 'center' }
+        props: { bg: '#6366f1', title: '[[TITLE]]', titleColor: '#ffffff', subtitleColor: 'rgba(255,255,255,0.8)', align: 'center', paddingY: '40' }
     },
     text: {
         label: 'Mətn',
-        props: { content: '[[CONTENT]]', color: '#374151', fontSize: '15', lineHeight: '1.8', align: 'left' }
+        props: { content: '[[CONTENT]]', color: '#374151', fontSize: '15', lineHeight: '1.8', align: 'left', paddingY: '28' }
     },
     button: {
         label: 'Düymə',
-        props: { text: '[[BUTTON_TEXT]]', url: '[[BUTTON_URL]]', bg: '#6366f1', color: '#ffffff', align: 'center' }
+        props: { text: '[[BUTTON_TEXT]]', url: '[[BUTTON_URL]]', bg: '#6366f1', color: '#ffffff', align: 'center', radius: '8', paddingY: '18' }
     },
     image: {
         label: 'Şəkil',
-        props: { src: 'https://placehold.co/600x200/e0e7ff/6366f1?text=Şəkiliniz', alt: 'Şəkil', align: 'center' }
+        props: { src: 'https://placehold.co/600x200/e0e7ff/6366f1?text=Şəkiliniz', alt: 'Şəkil', align: 'center', radius: '8', paddingY: '18' }
+    },
+    'image-text': {
+        label: 'Şəkil + Mətn',
+        props: { src: 'https://placehold.co/260x180/e0e7ff/6366f1?text=Şəkil', alt: 'Şəkil', imgPos: 'left', title: 'Başlıq', text: 'Bu sahədə şəkil ilə yanaşı mətn yerləşir.', color: '#374151', radius: '8', paddingY: '20' }
+    },
+    list: {
+        label: 'Siyahı',
+        props: { title: 'Üstünlüklər', items: 'Sürətli çatdırılma\nKeyfiyyət zəmanəti\n7/24 dəstək', icon: '✓', color: '#374151', paddingY: '20' }
+    },
+    quote: {
+        label: 'Sitat',
+        props: { text: 'Bu məhsul gözləntilərimi tam doğrultdu, tövsiyə edirəm!', author: '— Müştəri rəyi', color: '#374151', bg: '#f9fafb', paddingY: '24' }
+    },
+    social: {
+        label: 'Sosial Media',
+        props: { align: 'center', facebook: 'https://facebook.com', instagram: 'https://instagram.com', twitter: 'https://twitter.com', linkedin: 'https://linkedin.com', paddingY: '20' }
     },
     divider: {
         label: 'Bölücü',
@@ -473,15 +605,15 @@ var BLOCK_DEFAULTS = {
     },
     'two-col': {
         label: '2 Sütun',
-        props: { col1Title: 'Sütun 1', col1Text: 'Məzmun buradadır.', col2Title: 'Sütun 2', col2Text: 'Məzmun buradadır.', bg: '#ffffff' }
+        props: { col1Title: 'Sütun 1', col1Text: 'Məzmun buradadır.', col2Title: 'Sütun 2', col2Text: 'Məzmun buradadır.', bg: '#ffffff', paddingY: '20' }
     },
     card: {
         label: 'Kart',
-        props: { title: 'Kart Başlığı', text: 'Bu kart məzmunu nümunəsidir.', linkText: 'Daha çox →', linkUrl: '#', bg: '#f9fafb' }
+        props: { title: 'Kart Başlığı', text: 'Bu kart məzmunu nümunəsidir.', linkText: 'Daha çox →', linkUrl: '#', bg: '#f9fafb', radius: '10', paddingY: '20' }
     },
     footer: {
         label: 'Footer',
-        props: { company: 'Şirkət Adı', year: '2025', unsubUrl: '#', privacyUrl: '#', bg: '#f3f4f6', color: '#9ca3af' }
+        props: { company: 'Şirkət Adı', year: '2025', unsubUrl: '#', privacyUrl: '#', bg: '#f3f4f6', color: '#9ca3af', paddingY: '28' }
     },
 };
 
@@ -489,39 +621,68 @@ var BLOCK_DEFAULTS = {
 //  RENDER HTML from block props
 // ────────────────────────────────────────────────
 function renderBlockHtml(type, props) {
+    var font = globalSettings.fontFamily;
     switch (type) {
         case 'header':
-            return `<table width="100%" style="background:${props.bg};padding:40px 30px;text-align:${props.align};font-family:sans-serif;">
-<tr><td><h1 style="color:${props.titleColor};margin:0;font-size:28px;font-weight:700;">${props.title}</h1>
-`;
+            return `<table width="100%" cellpadding="0" cellspacing="0" style="background:${props.bg};padding:${props.paddingY}px 30px;text-align:${props.align};font-family:${font};">
+<tr><td><h1 style="color:${props.titleColor};margin:0;font-size:28px;font-weight:700;">${props.title}</h1></td></tr></table>`;
         case 'text':
-            return `<table width="100%" style="padding:28px 30px;font-family:sans-serif;">
+            return `<table width="100%" cellpadding="0" cellspacing="0" style="padding:${props.paddingY}px 30px;font-family:${font};">
 <tr><td style="color:${props.color};font-size:${props.fontSize}px;line-height:${props.lineHeight};text-align:${props.align};">${props.content.replace(/\n/g,'<br>')}</td></tr></table>`;
         case 'button':
-            return `<table width="100%" style="padding:18px 30px;font-family:sans-serif;text-align:${props.align};">
-<tr><td><a href="${props.url}" style="display:inline-block;background:${props.bg};color:${props.color};padding:13px 30px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px;">${props.text}</a></td></tr></table>`;
+            return `<table width="100%" cellpadding="0" cellspacing="0" style="padding:${props.paddingY}px 30px;font-family:${font};text-align:${props.align};">
+<tr><td><a href="${props.url}" style="display:inline-block;background:${props.bg};color:${props.color};padding:13px 30px;border-radius:${props.radius}px;text-decoration:none;font-weight:600;font-size:15px;">${props.text}</a></td></tr></table>`;
         case 'image':
-            return `<table width="100%" style="padding:18px 30px;font-family:sans-serif;text-align:${props.align};">
-<tr><td><img src="${props.src}" alt="${props.alt}" style="max-width:100%;border-radius:8px;" /></td></tr></table>`;
+            return `<table width="100%" cellpadding="0" cellspacing="0" style="padding:${props.paddingY}px 30px;font-family:${font};text-align:${props.align};">
+<tr><td><img src="${props.src}" alt="${props.alt}" style="max-width:100%;border-radius:${props.radius}px;" /></td></tr></table>`;
+        case 'image-text':
+            var imgCell  = `<td width="260" style="padding:0 16px;vertical-align:middle;"><img src="${props.src}" alt="${props.alt}" style="max-width:100%;border-radius:${props.radius}px;display:block;" /></td>`;
+            var textCell = `<td style="padding:0 16px;vertical-align:middle;"><h3 style="margin:0 0 8px;color:#111;font-size:18px;">${props.title}</h3><p style="margin:0;color:${props.color};font-size:14px;line-height:1.7;">${props.text}</p></td>`;
+            return `<table width="100%" cellpadding="0" cellspacing="0" style="padding:${props.paddingY}px 30px;font-family:${font};">
+<tr>${props.imgPos === 'right' ? textCell + imgCell : imgCell + textCell}</tr></table>`;
+        case 'list':
+            var items = props.items.split('\n').filter(function(x){ return x.trim() !== ''; })
+                .map(function(item){ return `<tr><td style="padding:4px 0;color:${props.color};font-size:14px;line-height:1.6;"><span style="color:#6366f1;font-weight:700;margin-right:8px;">${props.icon}</span>${item}</td></tr>`; })
+                .join('');
+            return `<table width="100%" cellpadding="0" cellspacing="0" style="padding:${props.paddingY}px 30px;font-family:${font};">
+<tr><td>${props.title ? `<h3 style="margin:0 0 10px;color:#111;font-size:17px;">${props.title}</h3>` : ''}<table width="100%" cellpadding="0" cellspacing="0">${items}</table></td></tr></table>`;
+        case 'quote':
+            return `<table width="100%" cellpadding="0" cellspacing="0" style="padding:${props.paddingY}px 30px;font-family:${font};">
+<tr><td style="background:${props.bg};border-left:4px solid #6366f1;border-radius:8px;padding:18px 22px;">
+<p style="margin:0 0 8px;color:${props.color};font-size:15px;line-height:1.7;font-style:italic;">"${props.text}"</p>
+<p style="margin:0;color:#9ca3af;font-size:13px;">${props.author}</p></td></tr></table>`;
+        case 'social':
+            var icons = [
+                {key:'facebook',  char:'f',  color:'#1877f2'},
+                {key:'instagram', char:'IG', color:'#e1306c'},
+                {key:'twitter',   char:'X',  color:'#000000'},
+                {key:'linkedin',  char:'in', color:'#0a66c2'}
+            ];
+            var links = icons.filter(function(i){ return props[i.key]; }).map(function(i){
+                return `<a href="${props[i.key]}" style="display:inline-block;width:34px;height:34px;line-height:34px;border-radius:50%;background:${i.color};color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;text-align:center;margin:0 5px;">${i.char}</a>`;
+            }).join('');
+            return `<table width="100%" cellpadding="0" cellspacing="0" style="padding:${props.paddingY}px 30px;font-family:${font};">
+<tr><td style="text-align:${props.align};">${links}</td></tr></table>`;
         case 'divider':
-            return `<table width="100%" style="padding:${props.margin}px 30px;"><tr><td style="border-top:${props.thickness}px solid ${props.color};font-size:0;">&nbsp;</td></tr></table>`;
+            return `<table width="100%" cellpadding="0" cellspacing="0" style="padding:${props.margin}px 30px;font-family:${font};"><tr><td style="border-top:${props.thickness}px solid ${props.color};font-size:0;">&nbsp;</td></tr></table>`;
         case 'spacer':
-            return `<table width="100%"><tr><td style="height:${props.height}px;line-height:${props.height}px;font-size:0;">&nbsp;</td></tr></table>`;
+            return `<table width="100%" cellpadding="0" cellspacing="0"><tr><td style="height:${props.height}px;line-height:${props.height}px;font-size:0;">&nbsp;</td></tr></table>`;
         case 'two-col':
-            return `<table width="100%" style="padding:20px 30px;font-family:sans-serif;background:${props.bg};border-collapse:collapse;">
+            return `<table width="100%" cellpadding="0" cellspacing="0" style="padding:${props.paddingY}px 30px;font-family:${font};background:${props.bg};border-collapse:collapse;">
 <tr><td width="50%" style="padding:12px;vertical-align:top;"><h3 style="margin:0 0 8px;color:#111;font-size:16px;">${props.col1Title}</h3><p style="color:#6b7280;font-size:14px;margin:0;">${props.col1Text}</p></td>
 <td width="50%" style="padding:12px;vertical-align:top;border-left:1px solid #e5e7eb;"><h3 style="margin:0 0 8px;color:#111;font-size:16px;">${props.col2Title}</h3><p style="color:#6b7280;font-size:14px;margin:0;">${props.col2Text}</p></td></tr></table>`;
         case 'card':
-            return `<table width="100%" style="padding:20px 30px;font-family:sans-serif;">
-<tr><td style="background:${props.bg};border-radius:10px;padding:24px;border:1px solid #e5e7eb;">
+            return `<table width="100%" cellpadding="0" cellspacing="0" style="padding:${props.paddingY}px 30px;font-family:${font};">
+<tr><td style="background:${props.bg};border-radius:${props.radius}px;padding:24px;border:1px solid #e5e7eb;">
 <h2 style="margin:0 0 10px;color:#111;font-size:20px;">${props.title}</h2>
 <p style="color:#6b7280;font-size:14px;line-height:1.6;margin:0 0 16px;">${props.text}</p>
 <a href="${props.linkUrl}" style="color:#6366f1;font-weight:600;font-size:14px;text-decoration:none;">${props.linkText}</a></td></tr></table>`;
         case 'footer':
-            return `<table width="100%" style="background:${props.bg};padding:28px 30px;text-align:center;font-family:sans-serif;">
-<tr><td><p style="color:${props.color};font-size:12px;margin:0 0 8px;">© ${props.year} ${props.company}. Bütün hüquqlar qorunur.</p>
-
-`;
+            return `<table width="100%" cellpadding="0" cellspacing="0" style="background:${props.bg};padding:${props.paddingY}px 30px;text-align:center;font-family:${font};">
+<tr><td>
+<p style="color:${props.color};font-size:12px;margin:0 0 8px;">© ${props.year} ${props.company}. Bütün hüquqlar qorunur.</p>
+<p style="margin:0;font-size:11px;"><a href="${props.unsubUrl}" style="color:${props.color};text-decoration:underline;">Abunəlikdən çıx</a> · <a href="${props.privacyUrl}" style="color:${props.color};text-decoration:underline;">Məxfilik siyasəti</a></p>
+</td></tr></table>`;
     }
     return '';
 }
@@ -568,6 +729,7 @@ function renderCanvas() {
         ctrl.className = 'block-controls';
         ctrl.innerHTML = `<button class="block-ctrl-btn" title="Yuxarı" onclick="moveBlock('${b.id}',-1)">↑</button>
 <button class="block-ctrl-btn" title="Aşağı" onclick="moveBlock('${b.id}',1)">↓</button>
+<button class="block-ctrl-btn dup" title="Dublikat et" onclick="duplicateBlock('${b.id}')">⧉</button>
 <button class="block-ctrl-btn del" title="Sil" onclick="deleteBlock('${b.id}')">✕</button>`;
         row.appendChild(ctrl);
 
@@ -588,6 +750,7 @@ function renderCanvas() {
         onEnd: function(evt) {
             var moved = blocks.splice(evt.oldIndex, 1)[0];
             blocks.splice(evt.newIndex, 0, moved);
+            pushHistory();
         }
     });
 }
@@ -602,12 +765,25 @@ function addBlock(type, atEnd) {
     blocks.push(b);
     renderCanvas();
     selectBlock(b.id);
+    pushHistory();
+}
+
+function duplicateBlock(id) {
+    var idx = blocks.findIndex(function(b){ return b.id === id; });
+    if (idx < 0) return;
+    var clone = JSON.parse(JSON.stringify(blocks[idx]));
+    clone.id  = 'b_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+    blocks.splice(idx + 1, 0, clone);
+    renderCanvas();
+    selectBlock(clone.id);
+    pushHistory();
 }
 
 function deleteBlock(id) {
     blocks = blocks.filter(function(b){ return b.id !== id; });
     if (selectedId === id) { selectedId = null; renderProps(null); }
     renderCanvas();
+    pushHistory();
 }
 
 function moveBlock(id, dir) {
@@ -617,6 +793,7 @@ function moveBlock(id, dir) {
     if (newIdx < 0 || newIdx >= blocks.length) return;
     var tmp = blocks[idx]; blocks[idx] = blocks[newIdx]; blocks[newIdx] = tmp;
     renderCanvas();
+    pushHistory();
 }
 
 function selectBlock(id) {
@@ -646,6 +823,7 @@ function renderProps(block) {
 
     var fields = getPropFields(block.type, p);
     fields.forEach(function(f) {
+        var fieldId = 'pf_' + block.id + '_' + f.key;
         html += '<div class="prop-row"><label>' + f.label + '</label>';
         if (f.type === 'color') {
             html += '<div class="color-row">'
@@ -653,7 +831,7 @@ function renderProps(block) {
                   + '<input type="text" id="ct_' + f.key + '" class="prop-input" value="' + f.value + '" oninput="updateProp(\'' + block.id + '\',\'' + f.key + '\',this.value)">'
                   + '</div>';
         } else if (f.type === 'textarea') {
-            html += '<textarea class="prop-textarea" oninput="updateProp(\'' + block.id + '\',\'' + f.key + '\',this.value)">' + f.value + '</textarea>';
+            html += '<textarea id="' + fieldId + '" class="prop-textarea" oninput="updateProp(\'' + block.id + '\',\'' + f.key + '\',this.value)">' + f.value + '</textarea>';
         } else if (f.type === 'select') {
             html += '<select class="prop-input" onchange="updateProp(\'' + block.id + '\',\'' + f.key + '\',this.value)">';
             f.options.forEach(function(o) {
@@ -661,7 +839,14 @@ function renderProps(block) {
             });
             html += '</select>';
         } else {
-            html += '<input type="text" class="prop-input" value="' + escAttr(f.value) + '" oninput="updateProp(\'' + block.id + '\',\'' + f.key + '\',this.value)">';
+            html += '<input type="text" id="' + fieldId + '" class="prop-input" value="' + escAttr(f.value) + '" oninput="updateProp(\'' + block.id + '\',\'' + f.key + '\',this.value)">';
+        }
+        if (f.vars) {
+            html += '<div class="var-chips">';
+            VAR_TOKENS.forEach(function(v) {
+                html += '<span class="var-chip" onclick="insertVar(\'' + fieldId + '\',\'' + v.token + '\')">+ ' + v.label + '</span>';
+            });
+            html += '</div>';
         }
         html += '</div>';
     });
@@ -671,32 +856,71 @@ function renderProps(block) {
 
 function getPropFields(type, p) {
     var alignOpts = [{v:'left',l:'Sol'},{v:'center',l:'Orta'},{v:'right',l:'Sağ'}];
+    var sideOpts  = [{v:'left',l:'Solda'},{v:'right',l:'Sağda'}];
+    var padding   = {key:'paddingY', label:'Şaquli boşluq (px)', type:'text', value: p.paddingY};
     switch (type) {
         case 'header': return [
-            {key:'title',       label:'Başlıq mətni',    type:'text',     value: p.title},
-        
+            {key:'title',       label:'Başlıq mətni',    type:'text',     value: p.title, vars: true},
             {key:'bg',          label:'Fon rəngi',       type:'color',    value: p.bg},
             {key:'titleColor',  label:'Başlıq rəngi',    type:'color',    value: p.titleColor},
             {key:'align',       label:'Hizalanma',       type:'select',   value: p.align, options: alignOpts},
+            padding,
         ];
         case 'text': return [
-            {key:'content',    label:'Mətn',          type:'textarea', value: p.content},
+            {key:'content',    label:'Mətn',          type:'textarea', value: p.content, vars: true},
             {key:'color',      label:'Rəng',          type:'color',    value: p.color},
             {key:'fontSize',   label:'Şrift ölçüsü',  type:'text',     value: p.fontSize},
             {key:'lineHeight', label:'Sətir hündür.',  type:'text',     value: p.lineHeight},
             {key:'align',      label:'Hizalanma',     type:'select',   value: p.align, options: alignOpts},
+            padding,
         ];
         case 'button': return [
-            {key:'text',  label:'Düymə mətni', type:'text',  value: p.text},
+            {key:'text',  label:'Düymə mətni', type:'text',  value: p.text, vars: true},
             {key:'url',   label:'Link (URL)',  type:'text',  value: p.url},
             {key:'bg',    label:'Fon rəngi',   type:'color', value: p.bg},
             {key:'color', label:'Mətn rəngi',  type:'color', value: p.color},
             {key:'align', label:'Hizalanma',   type:'select',value: p.align, options: alignOpts},
+            {key:'radius',label:'Künc radiusu (px)', type:'text', value: p.radius},
+            padding,
         ];
         case 'image': return [
             {key:'src',   label:'Şəkil URL',   type:'text', value: p.src},
             {key:'alt',   label:'Alt mətni',   type:'text', value: p.alt},
             {key:'align', label:'Hizalanma',   type:'select',value: p.align, options: alignOpts},
+            {key:'radius',label:'Künc radiusu (px)', type:'text', value: p.radius},
+            padding,
+        ];
+        case 'image-text': return [
+            {key:'src',    label:'Şəkil URL',     type:'text',     value: p.src},
+            {key:'alt',    label:'Alt mətni',     type:'text',     value: p.alt},
+            {key:'imgPos', label:'Şəklin yeri',   type:'select',   value: p.imgPos, options: sideOpts},
+            {key:'title',  label:'Başlıq',        type:'text',     value: p.title, vars: true},
+            {key:'text',   label:'Mətn',          type:'textarea', value: p.text, vars: true},
+            {key:'color',  label:'Mətn rəngi',    type:'color',    value: p.color},
+            {key:'radius', label:'Şəkil radiusu (px)', type:'text', value: p.radius},
+            padding,
+        ];
+        case 'list': return [
+            {key:'title', label:'Başlıq (boş ola bilər)', type:'text',     value: p.title, vars: true},
+            {key:'items', label:'Sətirlər (hər biri yeni sətirdə)', type:'textarea', value: p.items, vars: true},
+            {key:'icon',  label:'İşarə',           type:'text',     value: p.icon},
+            {key:'color', label:'Mətn rəngi',      type:'color',    value: p.color},
+            padding,
+        ];
+        case 'quote': return [
+            {key:'text',   label:'Sitat mətni', type:'textarea', value: p.text, vars: true},
+            {key:'author', label:'Müəllif',     type:'text',     value: p.author, vars: true},
+            {key:'color',  label:'Mətn rəngi',  type:'color',    value: p.color},
+            {key:'bg',     label:'Fon rəngi',   type:'color',    value: p.bg},
+            padding,
+        ];
+        case 'social': return [
+            {key:'facebook',  label:'Facebook linki',  type:'text', value: p.facebook},
+            {key:'instagram', label:'Instagram linki', type:'text', value: p.instagram},
+            {key:'twitter',   label:'X (Twitter) linki', type:'text', value: p.twitter},
+            {key:'linkedin',  label:'LinkedIn linki',  type:'text', value: p.linkedin},
+            {key:'align',     label:'Hizalanma',       type:'select', value: p.align, options: alignOpts},
+            padding,
         ];
         case 'divider': return [
             {key:'color',     label:'Rəng',         type:'color', value: p.color},
@@ -707,31 +931,36 @@ function getPropFields(type, p) {
             {key:'height', label:'Hündürlük (px)', type:'text', value: p.height},
         ];
         case 'two-col': return [
-            {key:'col1Title', label:'1-ci sütun başlığı', type:'text', value: p.col1Title},
-            {key:'col1Text',  label:'1-ci sütun mətni',   type:'textarea', value: p.col1Text},
-            {key:'col2Title', label:'2-ci sütun başlığı', type:'text', value: p.col2Title},
-            {key:'col2Text',  label:'2-ci sütun mətni',   type:'textarea', value: p.col2Text},
+            {key:'col1Title', label:'1-ci sütun başlığı', type:'text', value: p.col1Title, vars: true},
+            {key:'col1Text',  label:'1-ci sütun mətni',   type:'textarea', value: p.col1Text, vars: true},
+            {key:'col2Title', label:'2-ci sütun başlığı', type:'text', value: p.col2Title, vars: true},
+            {key:'col2Text',  label:'2-ci sütun mətni',   type:'textarea', value: p.col2Text, vars: true},
             {key:'bg',        label:'Fon rəngi',           type:'color', value: p.bg},
+            padding,
         ];
         case 'card': return [
-            {key:'title',    label:'Başlıq',       type:'text',     value: p.title},
-            {key:'text',     label:'Mətn',         type:'textarea', value: p.text},
-            {key:'linkText', label:'Link mətni',   type:'text',     value: p.linkText},
+            {key:'title',    label:'Başlıq',       type:'text',     value: p.title, vars: true},
+            {key:'text',     label:'Mətn',         type:'textarea', value: p.text, vars: true},
+            {key:'linkText', label:'Link mətni',   type:'text',     value: p.linkText, vars: true},
             {key:'linkUrl',  label:'Link URL',     type:'text',     value: p.linkUrl},
             {key:'bg',       label:'Fon rəngi',    type:'color',    value: p.bg},
+            {key:'radius',   label:'Künc radiusu (px)', type:'text', value: p.radius},
+            padding,
         ];
         case 'footer': return [
-            {key:'company',     label:'Şirkət adı',   type:'text',  value: p.company},
+            {key:'company',     label:'Şirkət adı',   type:'text',  value: p.company, vars: true},
             {key:'year',        label:'İl',            type:'text',  value: p.year},
             {key:'unsubUrl',    label:'Çıxış linki',  type:'text',  value: p.unsubUrl},
             {key:'privacyUrl',  label:'Gizlilik linki',type:'text', value: p.privacyUrl},
             {key:'bg',          label:'Fon rəngi',    type:'color', value: p.bg},
             {key:'color',       label:'Mətn rəngi',   type:'color', value: p.color},
+            padding,
         ];
     }
     return [];
 }
 
+var _historyTimer = null;
 function updateProp(id, key, val) {
     var b = blocks.find(function(x){ return x.id === id; });
     if (!b) return;
@@ -739,6 +968,8 @@ function updateProp(id, key, val) {
     // update only that block row's inner html
     var row = document.querySelector('[data-id="' + id + '"] > div:first-child');
     if (row) row.innerHTML = renderBlockHtml(b.type, b.props);
+    clearTimeout(_historyTimer);
+    _historyTimer = setTimeout(pushHistory, 600);
 }
 
 function escAttr(s) {
@@ -781,6 +1012,127 @@ function setDevice(mode, btn) {
     if (mode === 'mobile') c.classList.add('mobile');
     document.querySelectorAll('.dev-btn').forEach(function(b){ b.classList.remove('active'); });
     btn.classList.add('active');
+    c.style.width = (mode === 'desktop') ? (globalSettings.contentWidth + 'px') : '';
+}
+
+// ────────────────────────────────────────────────
+//  GLOBAL SETTINGS (page bg / content width / font)
+// ────────────────────────────────────────────────
+function openSettings() {
+    document.getElementById('set-bgColor').value      = globalSettings.bgColor;
+    document.getElementById('set-bgColorTxt').value   = globalSettings.bgColor;
+    document.getElementById('set-contentWidth').value = globalSettings.contentWidth;
+    document.getElementById('set-fontFamily').value   = globalSettings.fontFamily;
+    document.getElementById('settings-modal').style.display = 'flex';
+}
+function closeSettings() {
+    document.getElementById('settings-modal').style.display = 'none';
+}
+function saveSettings() {
+    globalSettings.bgColor      = document.getElementById('set-bgColorTxt').value.trim() || '#f1f5f9';
+    globalSettings.contentWidth = document.getElementById('set-contentWidth').value.trim() || '600';
+    globalSettings.fontFamily   = document.getElementById('set-fontFamily').value;
+    applyGlobalSettings();
+    closeSettings();
+    pushHistory();
+    toast('Ayarlar tətbiq edildi.', 'ok');
+}
+function applyGlobalSettings() {
+    var wrap = document.querySelector('.tb-canvas');
+    if (wrap) wrap.style.background = globalSettings.bgColor;
+    var email = document.getElementById('canvas-email');
+    if (email) {
+        var activeBtn = document.querySelector('.dev-btn.active');
+        var isDesktop = !activeBtn || activeBtn.title === 'Desktop';
+        email.style.width = isDesktop ? (globalSettings.contentWidth + 'px') : '';
+    }
+    renderCanvas();
+}
+
+// ────────────────────────────────────────────────
+//  PRESET SECTIONS
+// ────────────────────────────────────────────────
+var PRESETS = {
+    welcome: [
+        { type: 'header', props: { bg: '#10b981', title: 'Xoş gəlmisiniz, [[NAME]]!', titleColor: '#ffffff', subtitleColor: 'rgba(255,255,255,0.85)', align: 'center', paddingY: '40' } },
+        { type: 'text',   props: { content: 'Ailəmizə qoşulduğunuz üçün təşəkkür edirik. Hesabınızdan maksimum yararlanmaq üçün aşağıdakı düyməyə klikləyin.', color: '#374151', fontSize: '15', lineHeight: '1.8', align: 'left', paddingY: '24' } },
+        { type: 'button', props: { text: 'Hesabıma keç', url: '[[BUTTON_URL]]', bg: '#10b981', color: '#ffffff', align: 'center', radius: '8', paddingY: '10' } },
+    ],
+    promo: [
+        { type: 'header', props: { bg: '#6366f1', title: '🎉 Xüsusi Kampaniya', titleColor: '#ffffff', subtitleColor: 'rgba(255,255,255,0.85)', align: 'center', paddingY: '36' } },
+        { type: 'text',   props: { content: '[[NAME]], sizin üçün xüsusi endirim hazırladıq! [[COUPON]] kuponu ilə endirimdən yararlanın.', color: '#374151', fontSize: '15', lineHeight: '1.8', align: 'center', paddingY: '20' } },
+        { type: 'button', props: { text: 'İndi istifadə et', url: '[[BUTTON_URL]]', bg: '#6366f1', color: '#ffffff', align: 'center', radius: '8', paddingY: '10' } },
+        { type: 'divider', props: { color: '#e5e7eb', thickness: '1', margin: '20' } },
+    ],
+    cta: [
+        { type: 'text',   props: { content: 'Növbəti addımı atmağa hazırsınız?', color: '#111827', fontSize: '18', lineHeight: '1.6', align: 'center', paddingY: '20' } },
+        { type: 'button', props: { text: '[[BUTTON_TEXT]]', url: '[[BUTTON_URL]]', bg: '#0f172a', color: '#ffffff', align: 'center', radius: '8', paddingY: '8' } },
+    ],
+};
+
+function addPreset(name) {
+    var preset = PRESETS[name];
+    if (!preset) return;
+    preset.forEach(function(item) {
+        var def = BLOCK_DEFAULTS[item.type];
+        if (!def) return;
+        var props = JSON.parse(JSON.stringify(def.props));
+        Object.assign(props, item.props);
+        blocks.push({ id: 'b_' + Date.now() + '_' + Math.random().toString(36).slice(2,6), type: item.type, props: props });
+    });
+    renderCanvas();
+    pushHistory();
+    toast('Bölmə əlavə edildi.', 'ok');
+}
+
+// ────────────────────────────────────────────────
+//  VARIABLE INSERT (merge tags)
+// ────────────────────────────────────────────────
+function insertVar(fieldId, token) {
+    var el = document.getElementById(fieldId);
+    if (!el) return;
+    var start = el.selectionStart != null ? el.selectionStart : el.value.length;
+    var end   = el.selectionEnd   != null ? el.selectionEnd   : el.value.length;
+    el.value = el.value.slice(0, start) + token + el.value.slice(end);
+    el.selectionStart = el.selectionEnd = start + token.length;
+    el.dispatchEvent(new Event('input'));
+    el.focus();
+}
+
+// ────────────────────────────────────────────────
+//  HISTORY (UNDO / REDO)
+// ────────────────────────────────────────────────
+function pushHistory() {
+    history = history.slice(0, historyIndex + 1);
+    history.push(JSON.stringify({ blocks: blocks, settings: globalSettings }));
+    if (history.length > MAX_HISTORY) history.shift();
+    historyIndex = history.length - 1;
+    updateUndoRedoButtons();
+}
+function undo() {
+    if (historyIndex <= 0) return;
+    historyIndex--;
+    restoreHistory();
+}
+function redo() {
+    if (historyIndex >= history.length - 1) return;
+    historyIndex++;
+    restoreHistory();
+}
+function restoreHistory() {
+    var state = JSON.parse(history[historyIndex]);
+    blocks = state.blocks;
+    globalSettings = state.settings;
+    selectedId = null;
+    renderProps(null);
+    applyGlobalSettings();
+    updateUndoRedoButtons();
+}
+function updateUndoRedoButtons() {
+    var u = document.getElementById('undo-btn');
+    var r = document.getElementById('redo-btn');
+    if (u) u.disabled = historyIndex <= 0;
+    if (r) r.disabled = historyIndex >= history.length - 1;
 }
 
 // ────────────────────────────────────────────────
@@ -788,8 +1140,14 @@ function setDevice(mode, btn) {
 // ────────────────────────────────────────────────
 function buildHtml() {
     var inner = blocks.map(function(b){ return renderBlockHtml(b.type, b.props); }).join('');
-    return '<table width="100%" style="background:#fff;font-family:sans-serif;max-width:600px;margin:0 auto;">'
-         + inner + '</table>';
+    var width = globalSettings.contentWidth || '600';
+    var font  = globalSettings.fontFamily || 'Arial, Helvetica, sans-serif';
+    var bg    = globalSettings.bgColor || '#f1f5f9';
+    return '<table width="100%" cellpadding="0" cellspacing="0" style="background:' + bg + ';font-family:' + font + ';padding:24px 0;">'
+         + '<tr><td align="center">'
+         + '<table width="' + width + '" cellpadding="0" cellspacing="0" style="background:#ffffff;max-width:' + width + 'px;width:100%;margin:0 auto;">'
+         + inner
+         + '</table></td></tr></table>';
 }
 
 // ────────────────────────────────────────────────
@@ -799,7 +1157,7 @@ function previewEmail() {
     if (blocks.length === 0) { toast('Önizləmə üçün blok əlavə edin.', 'err'); return; }
     var html = buildHtml();
     document.getElementById('prev-iframe').srcdoc =
-        '<!DOCTYPE html><html><body style="margin:0;padding:20px;background:#f3f4f6;">' + html + '</body></html>';
+        '<!DOCTYPE html><html><body style="margin:0;padding:0;">' + html + '</body></html>';
     document.getElementById('prev-modal').style.display = 'flex';
 }
 function closePrev() { document.getElementById('prev-modal').style.display = 'none'; }
@@ -887,13 +1245,20 @@ if (isEdit && existingTpl.html) {
 //  INIT
 // ────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
-    renderCanvas();
+    applyGlobalSettings();
+    pushHistory();
 });
 
 document.addEventListener('keydown', function(e) {
     if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveTemplate(); }
-    if (e.key === 'Escape') closePrev();
-    if (e.key === 'Delete' && selectedId && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+
+    var typing = document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA');
+
+    if (!typing && (e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); }
+    if (!typing && (e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) { e.preventDefault(); redo(); }
+
+    if (e.key === 'Escape') { closePrev(); closeSettings(); }
+    if (e.key === 'Delete' && selectedId && !typing) {
         deleteBlock(selectedId);
     }
 });

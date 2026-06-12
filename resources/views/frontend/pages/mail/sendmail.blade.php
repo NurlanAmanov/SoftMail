@@ -222,6 +222,25 @@
     .mc-empty { font-size: .82rem; color: #94a3b8; }
     .mc-empty a { color: #13b999; text-decoration: none; font-weight: 600; }
     .mc-empty a:hover { text-decoration: underline; }
+
+    /* ── Step header ─────────────────────────────────────────── */
+    .mc-step-header {
+        display: flex; align-items: center; gap: 14px;
+    }
+    .mc-step-num {
+        width: 34px; height: 34px; border-radius: 50%;
+        background: #0f172a; color: #fff;
+        font-size: .85rem; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+    .mc-step-title {
+        font-size: .95rem; font-weight: 700; color: #0f172a; line-height: 1.2;
+    }
+    .mc-step-sub {
+        font-size: .75rem; color: #94a3b8; margin-top: 2px;
+    }
+    .mc-required { color: #ef4444; margin-left: 2px; }
 </style>
 @endpush
 
@@ -252,73 +271,84 @@
         <div class="col-lg-10 col-xl-8">
             <form method="POST" action="{{ route('admin.mailer.send') }}" id="mc-form" enctype="multipart/form-data">
                 @csrf
-                <div class="mc-card">
-                    <div class="row g-4">
+                {{-- ══ ADDIM 1: Dizayn Şablonu ══════════════════════════════ --}}
+                <div class="mc-card mb-4">
+                    <div class="mc-step-header">
+                        <span class="mc-step-num">1</span>
+                        <div>
+                            <div class="mc-step-title">Dizayn Şablonu</div>
+                            <div class="mc-step-sub">Emailinizin görünüşünü seçin</div>
+                        </div>
+                    </div>
 
-                        {{-- ── Template picker ──────────────────────────────── --}}
-                        <div class="col-12">
-                            <div class="mc-section-label">Dizayn şablonu</div>
-
-                            @if($templates->isEmpty())
-                                <p class="mc-empty">
-                                    Hələ heç bir şablon yoxdur.
-                                    <a href="{{ route('admin.templates.create') }}">Yarat</a>
-                                </p>
-                            @else
-                                <div class="tpl-grid">
-                                    @foreach($templates as $index => $tpl)
-                                        <div class="tpl-card {{ $index === 0 ? 'active' : '' }}"
-                                             data-id="{{ $tpl->id }}"
-                                             data-title="{{ $tpl->name }}">
-
-                                            <div class="tpl-prev">
-                                                <div class="tpl-prev-inner">
-                                                    <div class="tpl-p-hdr"></div>
-                                                    <div class="tpl-p-body">
-                                                        <div class="tpl-p-dot">
-                                                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                                                                <polyline points="22,6 12,13 2,6" style="fill:none;stroke:#fff;stroke-width:2"/>
-                                                            </svg>
-                                                        </div>
-                                                        <div class="tpl-p-lines">
-                                                            <div class="tpl-p-line l"></div>
-                                                            <div class="tpl-p-line s"></div>
-                                                        </div>
-                                                    </div>
+                    @if($templates->isEmpty())
+                        <p class="mc-empty mt-3">
+                            Hələ heç bir şablon yoxdur.
+                            <a href="{{ route('admin.templates.create') }}">Yarat</a>
+                        </p>
+                    @else
+                        <div class="tpl-grid mt-3">
+                            @foreach($templates as $index => $tpl)
+                                <div class="tpl-card {{ $index === 0 ? 'active' : '' }}"
+                                     data-id="{{ $tpl->id }}"
+                                     data-title="{{ $tpl->name }}">
+                                    <div class="tpl-prev">
+                                        <div class="tpl-prev-inner">
+                                            <div class="tpl-p-hdr"></div>
+                                            <div class="tpl-p-body">
+                                                <div class="tpl-p-dot">
+                                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                                        <polyline points="22,6 12,13 2,6" style="fill:none;stroke:#fff;stroke-width:2"/>
+                                                    </svg>
+                                                </div>
+                                                <div class="tpl-p-lines">
+                                                    <div class="tpl-p-line l"></div>
+                                                    <div class="tpl-p-line s"></div>
                                                 </div>
                                             </div>
-
-                                            <div class="tpl-foot">
-                                                <p class="tpl-name">{{ $tpl->name }}</p>
-                                                <p class="tpl-slug">{{ $tpl->slug }}</p>
-                                            </div>
-
-                                            <div class="tpl-badge">
-                                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                                            </div>
                                         </div>
-                                    @endforeach
+                                    </div>
+                                    <div class="tpl-foot">
+                                        <p class="tpl-name">{{ $tpl->name }}</p>
+                                        <p class="tpl-slug">{{ $tpl->slug }}</p>
+                                    </div>
+                                    <div class="tpl-badge">
+                                        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                    </div>
                                 </div>
-
-                                <input type="hidden" name="template" id="hidden-template"
-                                       value="{{ $templates->first()->id }}">
-
-                                <div class="mc-selected-bar">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                                    </svg>
-                                    Seçilmiş şablon: <strong id="selected-tpl-name">{{ $templates->first()->name }}</strong>
-                                </div>
-                            @endif
+                            @endforeach
                         </div>
 
-                        <div class="col-12"><hr class="mc-divider" style="margin:0"></div>
+                        <input type="hidden" name="template" id="hidden-template"
+                               value="{{ $templates->first()->id }}">
 
-                        {{-- ── Subject ───────────────────────────────────────── --}}
-                        <div class="col-12">
-                            <div class="mc-section-label">Məzmun</div>
-                            <label class="mc-label" for="mc-subject">Email mövzusu</label>
+                        <div class="mc-selected-bar mt-2">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                            Seçilmiş şablon: <strong id="selected-tpl-name">{{ $templates->first()->name }}</strong>
+                        </div>
+                    @endif
+                </div>
+
+                {{-- ══ ADDIM 2: Kampaniya Məlumatları ═══════════════════════════ --}}
+                <div class="mc-card mb-4">
+                    <div class="mc-step-header">
+                        <span class="mc-step-num">2</span>
+                        <div>
+                            <div class="mc-step-title">Kampaniya Məlumatları</div>
+                            <div class="mc-step-sub">Mövzu, qəbulçular və şablon sahələri</div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mt-1">
+                        {{-- Mövzu --}}
+                        <div class="col-md-6">
+                            <label class="mc-label" for="mc-subject">
+                                Email mövzusu
+                                <span class="mc-required">*</span>
+                            </label>
                             <input id="mc-subject"
                                    name="subject"
                                    class="mc-input"
@@ -327,14 +357,17 @@
                                    value="{{ old('subject') }}"
                                    required>
                             <div class="mc-hint">
-                                <span></span>
+                                <span class="text-muted" style="font-size:.72rem">Alıcının gördüyü ilk mətn</span>
                                 <span id="subj-counter">0 / 255</span>
                             </div>
                         </div>
 
-                        {{-- ── Recipients ────────────────────────────────────── --}}
-                        <div class="col-12">
-                            <label class="mc-label" for="mc-recipients">Qəbulçular</label>
+                        {{-- Qəbulçular --}}
+                        <div class="col-md-6">
+                            <label class="mc-label" for="mc-recipients">
+                                Qəbulçular
+                                <span class="mc-required">*</span>
+                            </label>
                             <input id="mc-recipients"
                                    name="recipients"
                                    class="mc-input"
@@ -342,86 +375,85 @@
                                    value="{{ old('recipients', $recipientsList) }}">
                             <div class="mc-hint">
                                 <span id="rec-counter"></span>
-                                <span style="color:#e2e8f0">virgül, nöqtəli vergül, və ya yeni sətir ilə ayırın</span>
+                                <span style="color:#cbd5e1; font-size:.72rem">vergül və ya nöqtəli vergül ilə ayırın</span>
                             </div>
                         </div>
 
-                        {{-- ── Message body (Quill Rich Text Editor) ─────────── --}}
-                        <div class="col-12">
-                            <div class="mc-section-label">Mesaj mətni</div>
-                            <label class="mc-label">
-                                Emailin əsas məzmunu
-                                <span style="color:#cbd5e1; font-weight:400">(istəyə bağlı)</span>
-                            </label>
-
-                            <div class="mc-editor-wrap" id="editor-wrap">
-                                <div id="mc-body-editor"></div>
-                            </div>
-
-                            {{-- Quill HTML məzmunu submit zamanı buraya yazılır --}}
-                            <input type="hidden" name="body_html" id="mc-body-html">
-
-                            <div class="mc-hint" style="margin-top:6px">
-                                <span></span>
-                                <span id="body-char-counter" style="color:#cbd5e1">0 simvol</span>
-                            </div>
-                        </div>
-
-                        {{-- ── Dynamic template fields (CONTENT skip edilir) ──── --}}
+                        {{-- Şablon sahələri (dinamik) --}}
                         <div class="col-12" id="dyn-section" style="display:none">
-                            <hr class="mc-divider" style="margin:0 0 1.5rem">
-                            <div class="mc-section-label">Şablon sahələri</div>
+                            <hr class="mc-divider" style="margin:.5rem 0 1rem">
+                            <div class="mc-section-label" style="margin-bottom:12px">Şablon sahələri</div>
                             <div class="dyn-grid" id="dyn-fields-inner"></div>
                         </div>
+                    </div>
+                </div>
 
-                        {{-- ── Attachment ────────────────────────────────────── --}}
-                        <div class="col-12">
-                            <div class="mc-section-label">Əlavə fayl</div>
-                            <label class="mc-label">
-                                Sənəd əlavə et
-                                <span style="color:#cbd5e1;font-weight:400">(istəyə bağlı)</span>
-                            </label>
-
-                            <div class="mc-file-zone" id="file-zone">
-                                <input type="file"
-                                       name="attachment"
-                                       id="mc-attachment"
-                                       accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
-                                <div class="mc-file-icon">
-                                    <svg viewBox="0 0 24 24">
-                                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-                                    </svg>
-                                </div>
-                                <div class="mc-file-text">
-                                    <strong>Faylı buraya sürüşdürün və ya seçin</strong>
-                                    <span>PDF, Word, Excel, JPG, PNG — maks. 10 MB</span>
-                                </div>
-                            </div>
-
-                            <div class="mc-file-pill" id="file-pill">
-                                <svg viewBox="0 0 24 24">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                    <polyline points="14 2 14 8 20 8"/>
-                                </svg>
-                                <span id="pill-name">fayl.pdf</span>
-                                <span class="pill-size" id="pill-size"></span>
-                                <button type="button" class="pill-remove" id="pill-remove" title="Sil">✕</button>
-                            </div>
+                {{-- ══ ADDIM 3: Mesaj Mətni ══════════════════════════════════════ --}}
+                <div class="mc-card mb-4">
+                    <div class="mc-step-header">
+                        <span class="mc-step-num">3</span>
+                        <div>
+                            <div class="mc-step-title">Mesaj Mətni</div>
+                            <div class="mc-step-sub">Emailin əsas məzmunu — istəyə bağlı</div>
                         </div>
+                    </div>
 
-                        {{-- ── Submit ────────────────────────────────────────── --}}
-                        <div class="col-12">
-                            <button type="submit" class="mc-submit">
-                                <svg viewBox="0 0 24 24">
-                                    <line x1="22" y1="2" x2="11" y2="13"/>
-                                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                                </svg>
-                                Kampaniyanı başlat
-                            </button>
+                    <div class="mc-editor-wrap mt-3" id="editor-wrap">
+                        <div id="mc-body-editor"></div>
+                    </div>
+                    <input type="hidden" name="body_html" id="mc-body-html">
+                    <div class="mc-hint mt-2">
+                        <span></span>
+                        <span id="body-char-counter" style="color:#cbd5e1">0 simvol</span>
+                    </div>
+                </div>
+
+                {{-- ══ ADDIM 4: Əlavə Fayl + Submit ═══════════════════════════════ --}}
+                <div class="mc-card">
+                    <div class="mc-step-header mb-3">
+                        <span class="mc-step-num">4</span>
+                        <div>
+                            <div class="mc-step-title">Əlavə Fayl</div>
+                            <div class="mc-step-sub">Sənəd əlavə et — istəyə bağlı</div>
                         </div>
+                    </div>
 
-                    </div>{{-- /row --}}
-                </div>{{-- /mc-card --}}
+                    <div class="mc-file-zone" id="file-zone">
+                        <input type="file"
+                               name="attachment"
+                               id="mc-attachment"
+                               accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
+                        <div class="mc-file-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                            </svg>
+                        </div>
+                        <div class="mc-file-text">
+                            <strong>Faylı buraya sürüşdürün və ya seçin</strong>
+                            <span>PDF, Word, Excel, JPG, PNG — maks. 10 MB</span>
+                        </div>
+                    </div>
+
+                    <div class="mc-file-pill" id="file-pill">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                        <span id="pill-name">fayl.pdf</span>
+                        <span class="pill-size" id="pill-size"></span>
+                        <button type="button" class="pill-remove" id="pill-remove" title="Sil">✕</button>
+                    </div>
+
+                    <hr class="mc-divider">
+
+                    <button type="submit" class="mc-submit">
+                        <svg viewBox="0 0 24 24">
+                            <line x1="22" y1="2" x2="11" y2="13"/>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                        </svg>
+                        Kampaniyanı başlat
+                    </button>
+                </div>
             </form>
         </div>
     </div>
